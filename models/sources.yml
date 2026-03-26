@@ -1,0 +1,225 @@
+version: 2
+
+sources:
+  #########################################
+  # GOLD LAYER: Refined Dimensions & Facts
+  #########################################
+  - name: gold_netsuite
+    description: "Refined Dimension and Fact tables for NetSuite ERP data."
+    database: "{{ env_var('DBT_FINANCE_CDM_SOURCE_DATABASE','DATA_PLATFORM_DB') }}"
+    schema: "{{ env_var('DBT_GOLD_SCHEMA_NETSUITE', 'GOLD_NETSUITE') }}"
+    tables:
+      - name: dim_accounting_period
+        description: "Standardized posting periods for financial reporting."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'dim_accounting_period']
+      - name: dim_classification
+        description: "Contains business classifications used for reporting and analysis."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'dim_classification']
+      - name: dim_chartofaccounts
+        description: "Refined account hierarchy and chart of accounts."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'dim_chartofaccounts']
+      - name: dim_departments
+        description: "NetSuite department dimension."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'dim_departments']
+      - name: dim_employees
+        description: "Employee dimension with unique surrogate keys."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'dim_employees']
+      - name: dim_currency
+        description: "NetSuite currency dimension."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'dim_currency']
+      - name: dim_entity
+        description: "Consolidated entity dimension for Customers and Vendors."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'dim_entity']
+      - name: dim_item
+        description: "Standardized NetSuite product and service items."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'dim_item']
+      - name: dim_locations
+        description: "NetSuite location dimension."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'dim_locations']
+      - name: dim_subsidiary
+        description: "NetSuite subsidiary/legal entity hierarchy."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'dim_subsidiary']
+      - name: fact_transaction
+        description: "Transaction fact table built from transaction, lines, and accounting lines."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'fact_transaction']
+
+  - name: gold_sage
+    description: "Refined Dimension and Fact tables for Sage Intacct data."
+    database: "{{ env_var('DBT_FINANCE_CDM_SOURCE_DATABASE','DATA_PLATFORM_DB') }}"
+    schema: "{{ env_var('DBT_GOLD_SCHEMA_SAGE', 'GOLD_SAGE') }}"
+    tables:
+      - name: dim_chartofaccounts
+        description: "Contains all GL accounts with their classifications and attributes."
+      - name: dim_classification
+        description: "Contains business classifications used for reporting and analysis."
+      - name: dim_customer
+        description: "Contains all customer master data with contact information."
+      - name: dim_entity
+        description: "Consolidated entity dimension for Customers and Vendors."
+      - name: dim_vendor
+        description: "Extracted from detail table (Sage doesn't have separate vendor table)."
+      - name: dim_currency
+        description: "Sage currency dimension."
+      - name: dim_department
+        description: "Department hierarchy dimension."
+      - name: dim_employee
+        description: "Employee dimension sourced from snp_employee."
+      - name: dim_item
+        description: "Item dimension with fixed numeric casting for base_price."
+      - name: dim_location
+        description: "Location dimension with record_no unique keys."
+      - name: dim_reporting_period
+        description: "Sage reporting period dimension."
+      - name: dim_subsidiary
+        description: "Sage subsidiary/legal entity dimension."
+      - name: fact_transaction
+        description: "Sage transaction fact joining entry, detail, and batch snapshots."
+
+  #########################################
+  # SILVER LAYER: Cleaned & Standardized
+  #########################################
+  - name: silver_netsuite
+    description: "Cleaned and standardized NetSuite records (Silver Layer)"
+    database: "{{ env_var('DBT_FINANCE_CDM_SOURCE_DATABASE','DATA_PLATFORM_DB') }}"
+    schema: "{{ env_var('DBT_SILVER_SCHEMA_NETSUITE', 'SILVER_NETSUITE') }}"
+    tables:
+      - name: accounting_period
+        description: "Cleaned posting periods with standardized start/end dates."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'accounting_period']
+      - name: accounts
+        description: "Chart of accounts with cleaned names and numbers."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'accounts']
+      - name: classification
+        description: "Standardized NetSuite classifications."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'classification']
+      - name: consolidated_exchange_rates
+        description: "Standardized exchange rates for consolidated reporting."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'consolidated_exchange_rates']
+      - name: currencies
+        description: "Standardized currency list."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'currencies']
+      - name: currencyrates
+        description: "Cleaned currency exchange rates."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'currencyrates']
+      - name: departments
+        description: "Standardized department list."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'departments']
+      - name: employees
+        description: "Employee records with fixed timestamp formats (DD-MM-YYYY)."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'employees']
+      - name: entity
+        description: "Unified entity table (customers, vendors, employees)."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'entity']
+      - name: item
+        description: "Standardized item list."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'item']
+      - name: locations
+        description: "Standardized locations."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'locations']
+      - name: subsidiaries
+        description: "Subsidiary hierarchy and base currency mappings."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'subsidiaries']
+      - name: transaction
+        description: "Header-level transaction data."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'transaction']
+      - name: transaction_accounting_line
+        description: "GL impact and posting details per transaction line."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'transaction_accounting_line']
+      - name: transaction_lines
+        description: "Line-level transaction details."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'transaction_lines']
+      - name: transaction_status
+        description: "Raw status mappings with no NULL values."
+        meta:
+          dagster:
+            asset_key: ['netsuite_adapter', 'transaction_status']
+
+  - name: silver_sage
+    description: "Cleaned and standardized Sage Intacct records (Silver Layer)"
+    database: "{{ env_var('DBT_FINANCE_CDM_SOURCE_DATABASE','DATA_PLATFORM_DB') }}"
+    schema: "{{ env_var('DBT_SILVER_SCHEMA_SAGE', 'SILVER_SAGE') }}"
+    tables:
+      - name: account
+        description: "Sage chart of accounts."
+      - name: batch
+        description: "Batch headers with cleaned titles and dates."
+      - name: currency
+        description: "Standardized currency list."
+      - name: customer
+        description: "Standardized customer records."
+      - name: department
+        description: "Standardized department list."
+      - name: detail
+        description: "Transaction details including payment and due dates."
+      - name: employee
+        description: "Cleaned employee records."
+      - name: entry
+        description: "Standardized Sage entries with record_no unique keys."
+      - name: item
+        description: "Inventory and service items with fixed numeric casting."
+      - name: location
+        description: "Standardized location list."
+      - name: location_entity
+        description: "Mappings for legal entities and locations."
+      - name: reporting_period
+        description: "Sage-specific reporting period definitions."
+  
+  - name: coa_mapping
+    description: "Cleaned and standardized Sage Intacct records (Silver Layer)"
+    database: "{{ env_var('DBT_FINANCE_CDM_SOURCE_DATABASE','DATA_PLATFORM_DB') }}"
+    schema: "{{ env_var('DBT_REPORTING_SCHEMA', 'COA_MAPPING') }}"
+    tables:
+      - name: map_coa_reporting
+        description: "The table contains financial mapping records, specifically for accounting and budgeting purposes."

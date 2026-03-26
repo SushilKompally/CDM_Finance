@@ -1,0 +1,4 @@
+type: dbt
+name: finance_cdm
+dagster_group: finance_cdm
+description: "Finance package"
