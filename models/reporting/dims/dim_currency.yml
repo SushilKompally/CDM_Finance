@@ -1,0 +1,12 @@
+version: 2
+ 
+models:
+  - name: dim_currency
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: currency_id
+        data_type: number
+      - name: currency_name
+        data_type: varchar

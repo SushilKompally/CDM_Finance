@@ -64,6 +64,14 @@ vars:
   dest_database: "{{ env_var('DBT_FINANCE_CDM_DEST_DATABASE', 'DATA_PLATFORM_DB') }}"
   reporting_schema: "{{ env_var('DBT_REPORTING_SCHEMA', 'CDM_FINANCE') }}"
 
+  table_registrations:
+    dim_currency:
+      - source: gold_netsuite.dim_currency
+      - source: gold_sage.dim_currency
+      - source: gold_netsuite.fact_transaction
+      - source: gold_sage.fact_transaction
+
+
 models:
   finance_cdm:
     reporting:
